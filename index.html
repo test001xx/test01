@@ -1,0 +1,411 @@
+<!--
+https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi/related?hl=en-US
+-->
+
+<head>
+	<meta charset="utf-8">
+	<title>Ethereum Test 001</title>
+	
+	<!-- jQuery -->
+	<script src="jquery-2.2.3.min.js"></script>
+	
+	<!-- Web3 -->
+	<script src="web3.min.js"></script>
+
+</head>
+
+<style>
+	.start__form {
+		background-color: #bbb;
+		padding: 5px;
+	}
+	.owner__form {
+		background-color: #bfb;
+		padding: 5px;
+	}
+	.register__form {
+		background-color: #fbb;
+		padding: 5px;
+	}
+	.user__form {
+		background-color: #fbf;
+		padding: 5px;
+	}
+	.employeer__form {
+		background-color: #bbf;
+		padding: 5px;
+	}
+	.healer__form {
+		background-color: #ffb;
+		padding: 5px;
+	}	
+	input {
+		margin: 5px;
+	}
+</style>
+
+<body>
+
+	<!--
+	<form class="start__form">
+		<h2>Проверка владельца контракта</h2>
+		<input type="text" size="50" id="address" name="address" placeholder="Введите свой адрес" value="">
+		<button class="js-submit" data-function="getrole">Проверить</button>
+	</form>
+	-->
+	
+	<button onclick="test();">test</button>
+	
+	<form class="start__form">
+		<h2>Начальная форма</h2>
+		<input type="text" size="50" id="address" name="address" placeholder="Введите свой адрес" value="">
+		<input type="hidden" name="func" value="getrole">
+		<button class="js-submit" data-function="getrole">Продолжить</button>
+	</form>
+
+	<form class="owner__form">
+		<h2>Форма владельца 1</h2>
+		<input type="text" size="50" id="address" name="address" placeholder="Введите свой адрес" value="">
+		<input type="text" size="50" id="key" name="key" placeholder="Введите свой ключ" value="">
+		<br>
+		
+		<input type="text" size="50" id="useraddress" name="useraddress" placeholder="Введите адрес нового владельца" value="">
+		<input type="hidden" name="func" value="setowner">
+		<button class="js-submit" data-function="setowner">Передать права владельца</button>
+	</form>
+	
+	<form class="owner__form">
+		<h2>Форма владельца 2</h2>
+		<input type="text" size="50" id="address" name="address" placeholder="Введите свой адрес" value="">
+		<input type="text" size="50" id="key" name="key" placeholder="Введите свой ключ" value="">
+		<br>
+		
+		<input type="text" size="50" id="useraddress" name="useraddress" placeholder="Введите адрес пользователя" value="">
+		<select id="valrole" name="valrole">
+			<option selected disabled>Выберите роль</option>
+			<option value="10">Регистратор полисов</option>
+			<option value="30">Работодатель</option>
+			<option value="40">Врач</option>
+		</select>
+		<input type="hidden" name="func" value="setrole">
+		<button class="js-submit" data-function="setrole">Назначить роль</button>		
+	</form>
+
+	<div class="register__form">
+		<h2>Форма регистратора</h2>
+		<input type="text" size="50" id="key" name="key" placeholder="Введите свой ключ" value="">
+		<br>
+		<input type="text" size="50" id="useraddress" name="useraddress" placeholder="Введите адрес пользователя" value="">
+		<input type="text" size="20" id="valpolis" name="valpolis" placeholder="Введите ID полиса" value="">		
+		<input type="hidden" name="func" value="setpolis">
+		<button class="ajax-click" data-function="setpolis">Присвоить полис</button>
+		<br>
+	</div>	
+	
+	<div class="user__form">
+		<h2>Форма пользователя</h2>
+		<input type="hidden" name="func" value="getpolisinfo">
+		<button class="ajax-click" data-function="getpolisinfo">Получить данные полиса</button>
+		<br>
+	</div>		
+
+	<div class="employeer__form">
+		<h2>Форма работодателя</h2>
+		<input type="text" size="50" id="key" name="key" placeholder="Введите свой ключ" value="">
+		<br>
+		<input type="text" size="20" id="valpolis" name="valpolis" placeholder="Введите ID полиса" value="">
+		
+		<select id="isvalid" name="isvalid">
+			<option selected value="true">Действителен</option>
+			<option value="false">Недействителен</option>
+		</select>
+		
+		<input type="text" size="20" id="date" name="date" placeholder="Срок действия" value="">
+		
+		<input type="text" size="20" id="uslugi" name="uslugi" placeholder="Услуги" value="">
+		
+		<input type="hidden" name="func" value="setpolisinfo">
+		<button class="ajax-click" data-function="setpolisinfo">Установить данные полиса</button>
+		
+		<br>
+	</div>	
+	
+	<div class="healer__form">
+		<h2>Форма врача</h2>
+		
+		<input type="text" size="50" id="useraddress" name="useraddress" placeholder="Введите адрес пользователя" value="">
+		
+		<input type="hidden" name="func" value="getpolisinfo">
+		<button class="ajax-click" data-function="getpolisinfo">Проверить полис</button>		
+
+	</div>	
+	
+   <br />
+   <br />
+	
+   <div id="output"></div>
+	<div id="output_1"></div>
+</body>
+
+
+<script>
+
+// Вспомогательная библиотека для упрощения работы с Ajax
+(function() {
+
+	"use strict";
+	
+	//%%% Настройки %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	var settings= {
+	};	
+
+	//%%% События (Высокоуровневые ) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	// клик по элементу
+	$(document).on('click', '.ajax-click', function (e) {
+		console.log('.ajax-click');
+		e.preventDefault();
+		
+		return ExecuteFuncFromAttr(this);
+	});
+	
+	$(document).on('click', '.js-submit', function (e) {
+		//console.log('.js-submit');
+		e.preventDefault();
+
+		var formSelector = $(this).data('form') || ''; //or undefined
+		var form = $(this).closest('form' + formSelector);
+		if (!form.length) form = $(this).siblings('form' + formSelector);
+
+		var functionName = $(this).attr('data-function');
+		var replaceContext = $(this).attr('data-context'); //or undefined
+
+		$(document).triggerHandler('event-submit', [form, functionName, replaceContext]);
+		return false;
+	});
+	
+// событие сабмита формы
+$(document).on('event-submit', null, 'somedata', function (e, form, functionName, replaceContext) {
+	//console.log('event-submit');
+	e = e || window.event;
+	var target = e.target || e.srcElement;
+	//e.preventDefault();
+	//e.data //somedata //{name:"value"}
+
+	console.log($(form).attr('class'));
+	
+	if (form.length !== 1) {
+		console.log('event-submit: form.length !== 1', form);
+		return false;
+	}
+
+	//var action= $(form).attr('action');
+	//console.log('action', action);
+	
+		var ajaxSettings= {
+			method: 'POST',
+			url: 'http://localhost:8080',
+			data: form.serialize(),
+			timeout: 5000,
+			//processData: true, //данные преобразуются из объекта в строку
+			cache: false,
+			headers: {
+				//"Access-Control-Allow-Origin": "*"
+				//"Origin": "http://localhost:8080/",
+			},	
+			crossDomain: true,	
+			//dataType: 'jsonp',	
+			beforeSend: setHeader,			
+		};
+		
+		function setHeader(xhr) {
+		  //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+		}
+		
+		var jqXhr= $.ajax(ajaxSettings);
+		jqXhr
+		.always (
+			function (data_jqXHR, textStatus, jqXHR_errorThrown) {
+			}
+		)
+		.fail (
+			function(jqXHR, textStatus, errorThrown) {
+				//console.log('fail');
+			}
+		)	
+		.done (
+			function (data, textStatus, jqXHR) {
+				console.log('event-submit: done');
+
+				//---execute function
+				if (functionName !== null) {
+					if (functionName.length && typeof functions[functionName] === 'function') {
+						//return functions[functionName](form, data);
+						var res= functions[functionName](form, data, replaceContext);
+					} else {
+						console.log('functionName: fail: ', functionName, functions[functionName]);
+					}
+				}
+				//-------------------
+			}
+		)
+	;	
+	
+	return false;
+});	
+	
+	// Исполнение функции из атрибута 'data-function'
+	var ExecuteFuncFromAttr= function (context) {
+      //console.log('ExecuteFuncAttr');
+      var funcName= context.getAttribute('data-function'); //or null
+		return GetFuncFromName(funcName)(context);
+	};
+	
+	// Возврат функции по имени из массива функций functions
+	var GetFuncFromName= function (funcName) {
+		//console.log('GetFuncFromName:', funcName);
+		
+		if (typeof funcName !== 'string') return function () {};
+
+		// из глобального массива functions
+		if (funcName.length && typeof functions[funcName] === 'function') {
+			return functions[funcName];
+		} else {
+			console.log('funcName: fail: ', funcName, functions[funcName]);
+			return function () {};
+		}
+	};
+
+	//%%% Экспорт %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	// экспорт некоторых функций для публичного использования
+	var js= {};
+	js.settings= settings;
+	js.GetFuncFromName= GetFuncFromName;
+	
+	//сделать ajax видимым в глобальной области
+	window.ajax= js; 	
+
+})();
+
+var functions= {
+   // пример функции
+   SomeFunc: function (context, param1) {
+      console.log('SomeFunc: ', context, param1);
+      return true;
+   },
+	
+	// замена html в заданном контексте
+   ReplaceContent: function (replaceContext, data) {
+      console.log('ReplaceContent');
+
+      if (typeof replaceContext === 'string' && replaceContext.length) 
+			replaceContext= $(replaceContext);
+		
+      data= jQuery.trim(data);
+      replaceContext.html(data);
+
+      return true;
+   },
+	 
+	//
+	/*GetBalance: function () {
+		var address= '0x627306090abab3a6e1400e9345bc60c78a8bef57'; //document.getElementById("address").value;
+		try{
+			//functions['ReplaceContent']('#output1', web3.eth.blockNumber);
+		} catch (err) {
+			return functions['ReplaceContent']('#output', err);
+		}
+		return true;
+	},*/
+	
+	getrole: function (form, data, replaceContext) {
+	
+		console.log('getrole');
+		console.log(data);
+		
+		//$('.owner__form #address').val($('.start__form #address').val());
+	
+	},
+
+	setrole: function (form, data, replaceContext) {
+		alert(data);
+	},
+	setowner: function (form, data, replaceContext) {
+		alert(data);
+	},
+	
+};
+
+$(document).ready(function() {
+
+	// load Web3
+	if (typeof web3 !== 'undefined') {
+		console.log('Web3 Detected! ' + web3.currentProvider.constructor.name);
+		window.web3 = new Web3(web3.currentProvider);
+	} else {
+		console.log('No Web3 Detected... using HTTP Provider');
+		//window.web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/IRJ14Gy6plYNGA5DJh0z"));
+		window.web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/"));
+		//window.web3 = new Web3(new Web3.providers.HttpProvider("https://ipfs.infura.io:5001"));
+
+		console.log('Web3 Detected! ' + web3.currentProvider.constructor.name);
+	}
+	
+	//var address= '0x627306090abab3a6e1400e9345bc60c78a8bef57';
+	//var ABI = [{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"setOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":false,"inputs":[{"name":"Polis","type":"string"},{"name":"bValid","type":"bool"},{"name":"uiDateExpired","type":"uint256"},{"name":"uiCategory","type":"uint256"},{"name":"sUsligi","type":"string"}],"name":"setPolisInfo","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"getData","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getRole","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"userAddress","type":"address"},{"name":"valPolis","type":"string"}],"name":"setPolis","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":false,"inputs":[{"name":"newData","type":"string"}],"name":"setData","outputs":[],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getPolisInfo","outputs":[{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"},{"name":"userAddress","type":"address"}],"name":"getPolis","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"userAddress","type":"address"},{"name":"valRole","type":"uint256"}],"name":"setRole","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"},{"name":"userAddress","type":"address"}],"name":"getPolisResult","outputs":[{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"sInp","type":"string"}],"name":"isEmptyString","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"getAddr","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"view"}];
+/*
+	try {
+	var address= '0x627306090abab3a6e1400e9345bc60c78a8bef57';
+	var ABI = [{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"setOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":false,"inputs":[{"name":"Polis","type":"string"},{"name":"bValid","type":"bool"},{"name":"uiDateExpired","type":"uint256"},{"name":"uiCategory","type":"uint256"},{"name":"sUsligi","type":"string"}],"name":"setPolisInfo","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"getData","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getRole","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"userAddress","type":"address"},{"name":"valPolis","type":"string"}],"name":"setPolis","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":false,"inputs":[{"name":"newData","type":"string"}],"name":"setData","outputs":[],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getPolisInfo","outputs":[{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"},{"name":"userAddress","type":"address"}],"name":"getPolis","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"userAddress","type":"address"},{"name":"valRole","type":"uint256"}],"name":"setRole","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"},{"name":"userAddress","type":"address"}],"name":"getPolisResult","outputs":[{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"sInp","type":"string"}],"name":"isEmptyString","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"getAddr","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"view"}];
+
+	
+	var contractObject = web3.eth.contract(ABI);
+	var contractAddress = '0xe2b6cf3863240892d59664d209a28289a73ef644';
+	var contractInstance = contractObject.at(contractAddress);
+	
+	var a= contractInstance.getData();
+		console.log(a);
+		
+	} catch(e){
+	
+	};
+*/	
+});
+
+function test() {
+	try {
+	var address= '0x627306090abab3a6e1400e9345bc60c78a8bef57';
+	
+	//var ABI = [{"constant":true,"inputs":[],"name":"getData","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newData","type":"string"}],"name":"setData","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+	
+	var ABI = [{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"setOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":false,"inputs":[{"name":"Polis","type":"string"},{"name":"bValid","type":"bool"},{"name":"uiDateExpired","type":"uint256"},{"name":"uiCategory","type":"uint256"},{"name":"sUsligi","type":"string"}],"name":"setPolisInfo","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"getData","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getRole","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"userAddress","type":"address"},{"name":"valPolis","type":"string"}],"name":"setPolis","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":false,"inputs":[{"name":"newData","type":"string"}],"name":"setData","outputs":[],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getPolisInfo","outputs":[{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"},{"name":"userAddress","type":"address"}],"name":"getPolis","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"userAddress","type":"address"},{"name":"valRole","type":"uint256"}],"name":"setRole","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"},{"name":"userAddress","type":"address"}],"name":"getPolisResult","outputs":[{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"sInp","type":"string"}],"name":"isEmptyString","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"getAddr","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"keyAddress","type":"address"}],"name":"getOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"view"}];
+	
+	
+	
+	var contractObject = web3.eth.contract(ABI);
+	//var contractAddress = '0xe2b6cf3863240892d59664d209a28289a73ef644';
+	
+	//var contractAddress = '0xcb95f554b1d4fe89d5d917c0962f81629e97a6df'; //small
+	var contractAddress = '0x4ac562dbcba73fae01f6e74773183cc394f98512'; //big
+	
+
+	
+	
+	var contractInstance = contractObject.at(contractAddress);
+				var w= web3.eth.getTransactionCount(address);
+			console.log(w);
+			
+		var a= contractInstance.getData();
+		console.log(a);
+		
+	} catch(e){
+	
+	}
+}
+
+
+
+
+</script>
